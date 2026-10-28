@@ -22,6 +22,7 @@ try {
 }
 catch(err) {
   console.error(err)
+  let message = "Couldn't start the camera."
   if(err instanceof DOMException) {
     if(err.name === "NotAllowedError") {
       message = "You need to enable the camera"
@@ -30,12 +31,6 @@ catch(err) {
       message = "No camera on device"
     }
   }
-  else {
-    message = "Couldn't start the camera."
-  }
 
   statusEl.textContent = message as string | null
-  
 }
-
-
