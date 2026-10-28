@@ -32,7 +32,8 @@ catch(err) {
     }
   }
 
-  statusEl.textContent = message as string | null
+  statusEl.textContent = message
+  throw err
 }
 
 
@@ -50,14 +51,14 @@ const landmarker = await PoseLandmarker.createFromOptions(vision, {
 })
 statusEl.textContent = ""
 const loop = () => {
-  let result = landmarker.detectForVideo(video, performance.now())
-  let body = result.landmarks[0]
+  const result = landmarker.detectForVideo(video, performance.now())
+  const body = result.landmarks[0]
   if (!body) {
     statusEl.textContent = "Nobody in frame"
   }
   else {
     const elbow = body[13]
-    statusEl.textContent = "x: " + elbow.x.toFixed(2) + " y: " + elbow.y.toFixed(2)
+    statusEl.textContent = `x: ${elbow.x.toFixed(2)} y: ${elbow.y.toFixed(2)}`
   }
   requestAnimationFrame(loop)
 }
