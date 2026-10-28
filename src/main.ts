@@ -14,7 +14,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 const video = document.getElementById("camera_video") as HTMLVideoElement | null
 const statusEl = document.getElementById("status")
 if (!statusEl) throw new Error("No element with id status")
-let message
 if (!video) throw new Error("No element with id camera_video")
 try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true })
