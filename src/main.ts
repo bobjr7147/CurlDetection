@@ -11,7 +11,6 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 </div>
 `
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
 const video = document.getElementById("camera_video") as HTMLVideoElement | null
 if (!video) throw new Error("No element with id camera_video")
 
