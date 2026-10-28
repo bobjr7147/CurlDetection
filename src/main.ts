@@ -3,7 +3,7 @@ import './style.css'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <h1>Curl Tracker</h1>
-<p id="status></p>
+<p id="status"></p>
 
 <div class="stage">
   <video id="camera_video" autoplay playsinline muted>
