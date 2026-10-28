@@ -4,7 +4,14 @@ import typescriptLogo from './assets/typescript.svg'
 import viteLogo from './assets/vite.svg'
 import { setupCounter } from './counter.ts'
 
+
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+<section id="camera">
+  <div class="main_camera">
+    <video id="camera_video" autoplay playsinline muted width="320" height="160">
+    </video>
+    </div>
+</section>
 <section id="center">
   <div class="hero">
     <img src="${heroImg}" class="base" width="170" height="179">
@@ -58,3 +65,9 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 `
 
 setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+const video = document.getElementById("camera_video") as HTMLVideoElement | null
+if (!video) throw new Error("No element with id camera_video")
+
+const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+video.srcObject = stream
+

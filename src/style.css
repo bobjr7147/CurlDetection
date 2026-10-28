@@ -294,3 +294,5 @@ code {
     border-right-color: var(--border);
   }
 }
+
+#camera_video { transform: scaleX(-1); }
