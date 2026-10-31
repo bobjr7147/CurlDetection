@@ -59,50 +59,53 @@ const landmarker = await PoseLandmarker.createFromOptions(vision, {
   numPoses: 1,
 })
 statusEl.textContent = ""
+let lastVideoTime = -1
 const loop = () => {
-  const result = landmarker.detectForVideo(video, performance.now())
-  const body = result.landmarks[0]
-  if (!body) {
-    statusEl.textContent = "Nobody in frame"
+  if (!(video.currentTime === lastVideoTime)) {
+    lastVideoTime = video.currentTime
+    const result = landmarker.detectForVideo(video, performance.now())
+    const body = result.landmarks[0]
+    if (!body) {
+      statusEl.textContent = "Nobody in frame"
+    }
+    else {
+      const elbow = body[13]
+      statusEl.textContent = `x: ${elbow.x.toFixed(2)} y: ${elbow.y.toFixed(2)}`
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      const shoulder = body[11]
+      const wrist = body[15]
+      const shoulderPixels = coordToPixels(shoulder, canvas)
+      const elbowPixels = coordToPixels(elbow, canvas)
+      const wristPixels = coordToPixels(wrist, canvas)
+
+      ctx.lineWidth = 5
+      ctx.strokeStyle = "red"
+      ctx.beginPath()
+      ctx.moveTo(shoulderPixels.x, shoulderPixels.y)
+      ctx.lineTo(elbowPixels.x, elbowPixels.y)
+      ctx.stroke()
+
+      ctx.strokeStyle = "blue"
+      ctx.beginPath()
+      ctx.moveTo(elbowPixels.x, elbowPixels.y)
+      ctx.lineTo(wristPixels.x, wristPixels.y)
+      ctx.stroke()
+
+      ctx.beginPath()
+      ctx.arc(shoulderPixels.x, shoulderPixels.y, 10, 0, 2 * Math.PI)
+      ctx.fill()
+
+      ctx.beginPath()
+      ctx.arc(elbowPixels.x, elbowPixels.y, 10, 0, 2 * Math.PI)
+      ctx.fill()
+
+      ctx.beginPath()
+      ctx.arc(wristPixels.x, wristPixels.y, 10, 0, 2 * Math.PI)
+      ctx.fill()
+      
+    }
   }
-  else {
-    const elbow = body[13]
-    statusEl.textContent = `x: ${elbow.x.toFixed(2)} y: ${elbow.y.toFixed(2)}`
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    const shoulder = body[11]
-    const wrist = body[15]
-    const shoulderPixels = coordToPixels(shoulder, canvas)
-    const elbowPixels = coordToPixels(elbow, canvas)
-    const wristPixels = coordToPixels(wrist, canvas)
-
-    ctx.lineWidth = 5
-    ctx.strokeStyle = "red"
-    ctx.beginPath()
-    ctx.moveTo(shoulderPixels.x, shoulderPixels.y)
-    ctx.lineTo(elbowPixels.x, elbowPixels.y)
-    ctx.stroke()
-
-    ctx.strokeStyle = "blue"
-    ctx.beginPath()
-    ctx.moveTo(elbowPixels.x, elbowPixels.y)
-    ctx.lineTo(wristPixels.x, wristPixels.y)
-    ctx.stroke()
-
-    ctx.beginPath()
-    ctx.arc(shoulderPixels.x, shoulderPixels.y, 10, 0, 2 * Math.PI)
-    ctx.fill()
-
-    ctx.beginPath()
-    ctx.arc(elbowPixels.x, elbowPixels.y, 10, 0, 2 * Math.PI)
-    ctx.fill()
-
-    ctx.beginPath()
-    ctx.arc(wristPixels.x, wristPixels.y, 10, 0, 2 * Math.PI)
-    ctx.fill()
-    
-  }
-
   
 
 
