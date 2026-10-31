@@ -12,9 +12,11 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <canvas id ="overlay"></canvas>
 </div>
 `
+// Phase down means the arm is lowering, phase up means the arm is raising
+// A curl is complete when it has been raised and then lowered, so we count a rep when the phase changes from down to up
 type Phase = "down" | "up"
-const UP_ANGLE = 145
-const DOWN_ANGLE = 55
+const CURLED_ANGLE = 145
+const RESTING_ANGLE = 55
 
 const video = document.getElementById("camera_video") as HTMLVideoElement | null
 const canvas = document.getElementById("overlay") as HTMLCanvasElement | null
@@ -116,11 +118,11 @@ const loop = () => {
       statusEl.textContent += ` angle: ${angle.toFixed(1)}`
       
       if(shoulder.visibility > 0.5 && elbow.visibility > 0.5 && wrist.visibility > 0.5) {
-        const [new_phase, rep_increment] = step(phase, angle)
-        if(rep_increment) {
+        const [newPhase, repIncrement] = step(phase, angle)
+        if(repIncrement) {
           reps += 1
         }
-        phase = new_phase
+        phase = newPhase
         statusEl.textContent += ` phase: ${phase} reps: ${reps}`
       }
 
@@ -152,10 +154,10 @@ function angleAt(a: { x: number; y: number }, b: { x: number; y: number }, c: { 
 }
 
 function step (phase: Phase, angle: number): [Phase, boolean] {
-  if (phase === "down" && angle > UP_ANGLE) {
+  if (phase === "down" && angle > CURLED_ANGLE) {
     return ["up", true]
   }
-  else if (phase === "up" && angle < DOWN_ANGLE) {
+  else if (phase === "up" && angle < RESTING_ANGLE) {
     return ["down", false]
   }
   else {
