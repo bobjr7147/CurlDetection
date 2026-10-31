@@ -65,8 +65,7 @@ const loop = () => {
     lastVideoTime = video.currentTime
     const result = landmarker.detectForVideo(video, performance.now())
     const body = result.landmarks[0]
-    const body3d = result.worldLandmarks[0]
-    if (!body || !body3d) {
+    if (!body) {
       statusEl.textContent = "Nobody in frame"
     }
     else {
@@ -105,10 +104,8 @@ const loop = () => {
       ctx.arc(wristPixels.x, wristPixels.y, 10, 0, 2 * Math.PI)
       ctx.fill()
 
-      const shoulder3d = body3d[11]
-      const elbow3d = body3d[13]
-      const wrist3d = body3d[15]
-      const angle = angleAt(shoulder3d, elbow3d, wrist3d)
+      
+      const angle = angleAt(shoulder, elbow, wrist)
       statusEl.textContent += ` angle: ${angle.toFixed(1)}`
       
     }
@@ -127,13 +124,25 @@ function coordToPixels(point: NormalizedLandmark, canvas: HTMLCanvasElement) {
 }
 
 
-function angleAt(a: { x: number; y: number; z: number }, b: { x: number; y: number; z: number }, c: { x: number; y: number; z: number }) {
+function angleAt3d(a: { x: number; y: number; z: number }, b: { x: number; y: number; z: number }, c: { x: number; y: number; z: number }) {
   const ab = { x: b.x - a.x, y: b.y - a.y, z: b.z - a.z }
   const cb = { x: b.x - c.x, y: b.y - c.y, z: b.z - c.z }
 
   const dot = (ab.x * cb.x + ab.y * cb.y + ab.z * cb.z)
   const magAB = Math.sqrt(ab.x * ab.x + ab.y * ab.y + ab.z * ab.z)
   const magCB = Math.sqrt(cb.x * cb.x + cb.y * cb.y + cb.z * cb.z)
+  const cosAngle = dot / (magAB * magCB)
+  const angle = Math.acos(Math.max(-1, Math.min(1, cosAngle)))
+  return angle * 180 / Math.PI
+}
+
+function angleAt(a: { x: number; y: number }, b: { x: number; y: number }, c: { x: number; y: number }) {
+  const ab = { x: b.x - a.x, y: b.y - a.y}
+  const cb = { x: b.x - c.x, y: b.y - c.y }
+
+  const dot = (ab.x * cb.x + ab.y * cb.y)
+  const magAB = Math.sqrt(ab.x * ab.x + ab.y * ab.y)
+  const magCB = Math.sqrt(cb.x * cb.x + cb.y * cb.y)
   const cosAngle = dot / (magAB * magCB)
   const angle = Math.acos(Math.max(-1, Math.min(1, cosAngle)))
   return angle * 180 / Math.PI
