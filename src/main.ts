@@ -12,6 +12,9 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <canvas id ="overlay"></canvas>
 </div>
 `
+type Phase = "down" | "up"
+const UP_ANGLE = 145
+const DOWN_ANGLE = 55
 
 const video = document.getElementById("camera_video") as HTMLVideoElement | null
 const canvas = document.getElementById("overlay") as HTMLCanvasElement | null
@@ -60,6 +63,10 @@ const landmarker = await PoseLandmarker.createFromOptions(vision, {
 })
 statusEl.textContent = ""
 let lastVideoTime = -1
+
+let phase: Phase = "up"
+let reps = 0
+
 const loop = () => {
   if (!(video.currentTime === lastVideoTime)) {
     lastVideoTime = video.currentTime
@@ -108,11 +115,18 @@ const loop = () => {
       const angle = angleAt(shoulder, elbow, wrist)
       statusEl.textContent += ` angle: ${angle.toFixed(1)}`
       
+      if(shoulder.visibility > 0.5 && elbow.visibility > 0.5 && wrist.visibility > 0.5) {
+        const [new_phase, rep_increment] = step(phase, angle)
+        if(rep_increment) {
+          reps += 1
+        }
+        phase = new_phase
+        statusEl.textContent += ` phase: ${phase} reps: ${reps}`
+      }
+
     }
   }
   
-
-
   requestAnimationFrame(loop)
 }
 
@@ -146,4 +160,16 @@ function angleAt(a: { x: number; y: number }, b: { x: number; y: number }, c: { 
   const cosAngle = dot / (magAB * magCB)
   const angle = Math.acos(Math.max(-1, Math.min(1, cosAngle)))
   return angle * 180 / Math.PI
+}
+
+function step (phase: Phase, angle: number): [Phase, boolean] {
+  if (phase === "down" && angle > UP_ANGLE) {
+    return ["up", true]
+  }
+  else if (phase === "up" && angle < DOWN_ANGLE) {
+    return ["down", false]
+  }
+  else {
+    return [phase, false]
+  }
 }
