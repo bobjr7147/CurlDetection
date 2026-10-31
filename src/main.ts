@@ -15,8 +15,8 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 // Phase down means the arm is lowering, phase up means the arm is raising
 // A curl is complete when it has been raised and then lowered, so we count a rep when the phase changes from down to up
 type Phase = "down" | "up"
-const CURLED_ANGLE = 145
-const RESTING_ANGLE = 55
+const RESTING_ANGLE = 145
+const CURLED_ANGLE = 55
 
 const video = document.getElementById("camera_video") as HTMLVideoElement | null
 const canvas = document.getElementById("overlay") as HTMLCanvasElement | null
