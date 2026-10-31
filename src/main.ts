@@ -125,6 +125,9 @@ const loop = () => {
         phase = newPhase
         statusEl.textContent += ` phase: ${phase} reps: ${reps}`
       }
+      else {
+        statusEl.textContent += " arm not visible"
+      }
 
     }
   }
@@ -154,10 +157,10 @@ function angleAt(a: { x: number; y: number }, b: { x: number; y: number }, c: { 
 }
 
 function step (phase: Phase, angle: number): [Phase, boolean] {
-  if (phase === "down" && angle > CURLED_ANGLE) {
+  if (phase === "down" && angle > RESTING_ANGLE) {
     return ["up", true]
   }
-  else if (phase === "up" && angle < RESTING_ANGLE) {
+  else if (phase === "up" && angle < CURLED_ANGLE) {
     return ["down", false]
   }
   else {
