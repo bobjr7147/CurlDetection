@@ -1,5 +1,6 @@
 import './style.css'
 import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision"
+import type { NormalizedLandmark } from "@mediapipe/tasks-vision"
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <h1>Curl Tracker</h1>
@@ -8,13 +9,16 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <div class="stage">
   <video id="camera_video" autoplay playsinline muted>
   </video>
+  <canvas id ="overlay"></canvas>
 </div>
 `
 
 const video = document.getElementById("camera_video") as HTMLVideoElement | null
+const canvas = document.getElementById("overlay") as HTMLCanvasElement | null
 const statusEl = document.getElementById("status")
 if (!statusEl) throw new Error("No element with id status")
 if (!video) throw new Error("No element with id camera_video")
+if (!canvas) throw new Error("No element with id overlay")
 try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true })
     video.srcObject = stream
@@ -35,6 +39,11 @@ catch(err) {
   statusEl.textContent = message
   throw err
 }
+
+canvas.width = video.videoWidth
+canvas.height = video.videoHeight
+const ctx = canvas.getContext("2d")
+if (!ctx) throw new Error("No canvas context")
 
 
 statusEl.textContent = "Loading pose model..."
@@ -59,8 +68,50 @@ const loop = () => {
   else {
     const elbow = body[13]
     statusEl.textContent = `x: ${elbow.x.toFixed(2)} y: ${elbow.y.toFixed(2)}`
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    const shoulder = body[11]
+    const wrist = body[15]
+    const shoulderPixels = coordToPixels(shoulder, canvas)
+    const elbowPixels = coordToPixels(elbow, canvas)
+    const wristPixels = coordToPixels(wrist, canvas)
+
+    ctx.lineWidth = 5
+    ctx.strokeStyle = "red"
+    ctx.beginPath()
+    ctx.moveTo(shoulderPixels.x, shoulderPixels.y)
+    ctx.lineTo(elbowPixels.x, elbowPixels.y)
+    ctx.stroke()
+
+    ctx.strokeStyle = "blue"
+    ctx.beginPath()
+    ctx.moveTo(elbowPixels.x, elbowPixels.y)
+    ctx.lineTo(wristPixels.x, wristPixels.y)
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.arc(shoulderPixels.x, shoulderPixels.y, 10, 0, 2 * Math.PI)
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.arc(elbowPixels.x, elbowPixels.y, 10, 0, 2 * Math.PI)
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.arc(wristPixels.x, wristPixels.y, 10, 0, 2 * Math.PI)
+    ctx.fill()
+    
   }
+
+  
+
+
   requestAnimationFrame(loop)
 }
 
 requestAnimationFrame(loop)
+
+
+function coordToPixels(point: NormalizedLandmark, canvas: HTMLCanvasElement) {
+  return { x: point.x * canvas.width, y: point.y * canvas.height }
+}
