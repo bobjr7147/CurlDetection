@@ -103,6 +103,9 @@ const loop = () => {
       ctx.beginPath()
       ctx.arc(wristPixels.x, wristPixels.y, 10, 0, 2 * Math.PI)
       ctx.fill()
+
+      const angle = angleAt(shoulderPixels, elbowPixels, wristPixels)
+      statusEl.textContent += ` angle: ${angle.toFixed(1)}`
       
     }
   }
@@ -117,4 +120,16 @@ requestAnimationFrame(loop)
 
 function coordToPixels(point: NormalizedLandmark, canvas: HTMLCanvasElement) {
   return { x: point.x * canvas.width, y: point.y * canvas.height }
+}
+
+function angleAt(a, b, c) {
+  const ab = { x: b.x - a.x, y: b.y - a.y }
+  const cb = { x: b.x - c.x, y: b.y - c.y }
+  
+  const dot = (ab.x * cb.x + ab.y * cb.y)
+  const magAB = Math.sqrt(ab.x * ab.x + ab.y * ab.y)
+  const magCB = Math.sqrt(cb.x * cb.x + cb.y * cb.y)
+  const cosAngle = dot / (magAB * magCB)
+  const angle = Math.acos(Math.max(-1, Math.min(1, cosAngle)))
+  return angle * 180 / Math.PI
 }
