@@ -2,6 +2,8 @@ import './style.css'
 import { FilesetResolver, PoseLandmarker } from "@mediapipe/tasks-vision"
 import type { NormalizedLandmark } from "@mediapipe/tasks-vision"
 
+import { type Phase, step } from "./repCounter"
+
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <h1>Curl Tracker</h1>
 <p id="status"></p>
@@ -12,11 +14,8 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <canvas id ="overlay"></canvas>
 </div>
 `
-// Phase down means the arm is lowering, phase up means the arm is raising
-// A curl is complete when it has been raised and then lowered, so we count a rep when the phase changes from down to up
-type Phase = "down" | "up"
-const RESTING_ANGLE = 135
-const CURLED_ANGLE = 65
+
+
 
 const video = document.getElementById("camera_video") as HTMLVideoElement | null
 const canvas = document.getElementById("overlay") as HTMLCanvasElement | null
@@ -156,14 +155,3 @@ function angleAt(a: { x: number; y: number }, b: { x: number; y: number }, c: { 
   return angle * 180 / Math.PI
 }
 
-function step (phase: Phase, angle: number): [Phase, boolean] {
-  if (phase === "down" && angle > RESTING_ANGLE) {
-    return ["up", true]
-  }
-  else if (phase === "up" && angle < CURLED_ANGLE) {
-    return ["down", false]
-  }
-  else {
-    return [phase, false]
-  }
-}
