@@ -40,7 +40,7 @@ describe("step", () => {
   })
 
   it("counts three full curls", () => {
-    const reps = countReps([180, 130, 20, 180, 20, 190, 10, 190])
+    const reps = countReps([180, 130, 20, 180, 20, 172, 10, 172])
 
     // Assert: the test fails if this isn't true
     expect(reps).toBe(3)
